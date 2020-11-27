@@ -57,11 +57,11 @@ I ran these two functions across all the components of the Dow Jones. Anomaly an
 Here is the combination of the anomaly probability (color, yellow is non-anomalous, red is anomalous) and the return on a given stock. The red points on the left are due to padding.
 ![enter image description here][3]
 
-##Visualizing the Anomaly Signal
+## Visualizing the Anomaly Signal
 Here's a moving average over the anomaly signals.
 ![enter image description here][4]
 
-##Examining Systemic Anomaly
+## Examining Systemic Anomaly
 Let's see if there is any relation between the different stock anomaly signals. For the most part, they don't seem to be highly correlated, though there are some bands in which anomalies seem to occur together.
 
 Let's first visualize the anomaly time series:
@@ -106,7 +106,7 @@ Here is a correlation matrix plot for the return correlations, the individual an
 ![enter image description here][8]
 
 
-##Examining Anomaly and Return
+## Examining Anomaly and Return
 Here is a plot of the anomaly probability against return percentages.
 ![enter image description here][10]
 
