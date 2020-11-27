@@ -7,9 +7,9 @@ Stock markets are volatile environments in which there is wild fluctuation. This
 Suppose we have random variable $x$ and we wish to identify if point $z$ would be considered anomalous under $x$. 
 
 The first step would be to consider the distribution of points $x$. Suppose the sample yields the following:
-
+```mma
     x = {5,5,5,4,4,6,3,14,14,14,13,13,12,11,15,15}
-
+```
 The distribution of $x$ can be empirically learned/estimated through a [kernel density estimation][1], which smooths out the points by superimposing kernels of certain bandwidths about each point to ultimately create an estimate of the probability distribution of the random variate $x$. 
 
 Formally, the $\mathrm{PDF}(x)$ for KDE using a Gaussian kernel on a set of observations $\hat{x}$ 
@@ -18,17 +18,17 @@ is given by $\frac{1}{m h} \sum_{i=1}^{m}$${k (\frac{\hat{x}-x_i}{h}) }$ with ke
 Once the distribution is learned, anomaly scores can be assigned using the `RarerProbability` function.
 
 Here is a plot of anomaly probability with the PDF of the KDE
-
+```mma
     ld = LearnDistribution[x, Method -> "KernelDensityEstimation", FeatureExtractor -> "Minimal"]
   Show[Plot[PDF[ld, x], {x, 0, 20}], 
    ListPlot[{#, 1 - RarerProbability[ld, #]} & /@ {9, 25, 13, 5}, 
     PlotStyle -> Red, Filling -> Axis], PlotRange -> All]
-
+```
 ![Here is a plot of anomaly probability with the PDF of the KDE][2]
 
 # Anomaly Detection for Time Series Data
 In order to detect anomalies across a time series I defined the following two functions:
-
+```mma
     tsw2AnomalProb[ts_,t_]:=
       Module[{tr,an,ad},
     {tr,an}= TakeDrop[ts,t];
@@ -37,26 +37,30 @@ In order to detect anomalies across a time series I defined the following two fu
                  TimeGoal->1,TrainingProgressReporting->None];
     1-RarerProbability[ad,an] (* Higher quantities are more anomalous*)
     ]
+```
 
 This time series to anomaly probability function only operates on a window of a time series. In order to convert entire time series, this function must be applied over each sub-window of the time series, starting at the beginning and moving over one each time.
-
+```mma
     ts2AnomalProb[ts_,t_,window_]:=
        Module[{out},
          Print["abc called ts2AnomalProb"];
          out = tsw2AnomalProb[#,t]&/@Partition[ts["Values"],window,window-t]//Flatten;
          TimeSeries[Transpose[{ts["Dates"],PadLeft[out,ts["PathLength"]]}]]
        ]
+```
 I ran these two functions across all the components of the Dow Jones. Anomaly and stock return data is provided in the attached notebook.
 
 # Results 
 ## Visualizing the Return and Anomaly Signals Together
-
+```mma
     mergeOnColor[ts_,colorTs_]:= Style@@@Transpose[{ts["Values"],
                                  Blend[{Yellow,Red},#]&/@colorTs["Values"]}]
+```
+Here is the combination of the anomaly probability (color, yellow is non-anomalous, red is anomalous) and the return on a given stock. 
 
-Here is the combination of the anomaly probability (color, yellow is non-anomalous, red is anomalous) and the return on a given stock. The red points on the left are due to padding.
 ![enter image description here][3]
 
+The red points on the left are due to padding.
 ## Visualizing the Anomaly Signal
 Here's a moving average over the anomaly signals.
 ![enter image description here][4]
@@ -66,14 +70,17 @@ Let's see if there is any relation between the different stock anomaly signals. 
 
 Let's first visualize the anomaly time series:
 
+```mma
     (anomalData = 
        Transpose[
         Map[Drop[#, 20] &, #["Values"] & /@ Values[anomalTs], {1}]]) // 
      MatrixPlot[Transpose[#], ImageSize -> Large] &
+```
+
 ![enter image description here][5]
 
 Now I count the number of anomalies by day and segment the data accordingly, finding the ones with greater than 20 anomalous stocks a day and those with under 10 anomalous stocks a day.
-
+```mma
     anomalCounts = Count[#, _?(# > .5 &)] & /@ anomalData
     posGreater20 = Position[anomalCounts, _?(# >= 20 &)] // Flatten
     posLess10 = Position[anomalCounts, _?(# <= 10 &)] // Flatten
@@ -83,7 +90,7 @@ Now I count the number of anomalies by day and segment the data accordingly, fin
         Rectangle[{0, 0}, {500, 10.5`}]}}, ImageSize -> Large, 
      PlotStyle -> Directive[Gray, Opacity[1]], 
      PlotMarkers -> {Automatic, 8}]
-
+```
 ![enter image description here][6]
 
 Interestingly, the average over the Dow Jones return for those stocks with $\geq 20$ anomalous stocks is down $-0.370067\%$ while those with $\leq 10$ stocks anomalous is $0.110058\%$
@@ -91,7 +98,7 @@ What this means that when more than $\frac{20}{30}$stocks are anomalous ( $\math
 ![enter image description here][7]
 ### Examining Anomaly Probability Together
 I examined systemic anomaly by also inputting all components of the Dow for a certain interval into the anomaly detection simultaneously.
-
+```mma
     tsw2anomalProbMultiDim[ts_]:=
     Module[{tr,an},
     {tr,an} = TakeDrop[ts,Length[ts]-1];
@@ -101,7 +108,7 @@ I examined systemic anomaly by also inputting all components of the Dow for a ce
      tsw2anomalProbMultiDim /@ 
       Partition[Transpose[Normal[#["Values"]] & /@ Values[stockTs]], 
        windowSize, 1
-
+```
 Here is a correlation matrix plot for the return correlations, the individual anomalies and systemic anomaly probabilities respectively, with the first row/column being the Dow Jones. Notice here that returns are relatively correlated, while the individual anomalies are all rather independent. However, on the systemic anomalies, the index (Dow Jones) anomalies appears to be highly correlated with the anomalies of each the individual components, indicating a systemic but non-pairwise risk.
 ![enter image description here][8]
 
