@@ -63,6 +63,7 @@ Here is the combination of the anomaly probability (color, yellow is non-anomalo
 The red points on the left are due to padding.
 ## Visualizing the Anomaly Signal
 Here's a moving average over the anomaly signals.
+
 ![enter image description here][4]
 
 ## Examining Systemic Anomaly
@@ -91,11 +92,14 @@ Now I count the number of anomalies by day and segment the data accordingly, fin
      PlotStyle -> Directive[Gray, Opacity[1]], 
      PlotMarkers -> {Automatic, 8}]
 ```
+
 ![enter image description here][6]
 
 Interestingly, the average over the Dow Jones return for those stocks with $\geq 20$ anomalous stocks is down $-0.370067\%$ while those with $\leq 10$ stocks anomalous is $0.110058\%$
 What this means that when more than $\frac{20}{30}$stocks are anomalous ( $\mathrm{P(anomaly)}\geq.5$ ), it turns out that those days the Dow Jones is down, while when there are less than $\frac{10}{30}$stocks the Dow Jones is up. This hints at a systemic origin of anomaly as when anomalies occur together the stock market is generally down even though, individually, the probability of anomaly is relatively uniform.
+
 ![enter image description here][7]
+
 ### Examining Anomaly Probability Together
 I examined systemic anomaly by also inputting all components of the Dow for a certain interval into the anomaly detection simultaneously.
 ```mma
@@ -110,11 +114,13 @@ I examined systemic anomaly by also inputting all components of the Dow for a ce
        windowSize, 1
 ```
 Here is a correlation matrix plot for the return correlations, the individual anomalies and systemic anomaly probabilities respectively, with the first row/column being the Dow Jones. Notice here that returns are relatively correlated, while the individual anomalies are all rather independent. However, on the systemic anomalies, the index (Dow Jones) anomalies appears to be highly correlated with the anomalies of each the individual components, indicating a systemic but non-pairwise risk.
+
 ![enter image description here][8]
 
 
 ## Examining Anomaly and Return
 Here is a plot of the anomaly probability against return percentages.
+
 ![enter image description here][10]
 
 And this is a plot of the anomaly probability against next day return percentages.
